@@ -4,8 +4,11 @@ import ListGroup from "react-bootstrap/ListGroup"
 import { useSelector } from "react-redux"
 
 function Cart() {
-  const products = useSelector((state) => state.cart)
+  const mp = new MercadoPago(import.meta.env.VITE_MERCADOPAGO_KEY, {
+    locale: "es-PE",
+  })
 
+  const products = useSelector((state) => state.cart)
   const total = products.reduce((sum, p) => sum + p.price, 0)
 
   async function pay() {
@@ -17,16 +20,21 @@ function Cart() {
       body: JSON.stringify(products.map((p) => p._id)),
     })
 
-    const data = response.json()
-    alert("Orden creada!")
+    const data = await response.json()
+    const checkout = mp.checkout({
+      preference: {
+        id: data.preferenceId,
+      },
+    })
+    checkout.open()
   }
 
   return (
     <Card style={{ width: "18rem" }}>
       <Card.Header>Carro de Compras</Card.Header>
       <ListGroup variant="flush">
-        {products.map((product) => (
-          <ListGroup.Item key={product.id} className="d-flex justify-content-between">
+        {products?.map((product, i) => (
+          <ListGroup.Item key={i} className="d-flex justify-content-between">
             {product.name}
             <span>${product.price}</span>
           </ListGroup.Item>

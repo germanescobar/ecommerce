@@ -4,7 +4,14 @@ import express from "express"
 import cors from "cors"
 import routes from "./src/routes.js"
 
-mongoose.connect(process.env.MONGO_DB_URI || "mongodb://127.0.0.1:27017/ecommerce")
+mongoose
+  .connect(process.env.MONGO_DB_URI || "mongodb://127.0.0.1:27017/ecommerce")
+  .then((result) => {
+    console.log("connected to MongoDB")
+  })
+  .catch((error) => {
+    console.log("error connecting to MongoDB", error.message)
+  })
 
 const PORT = process.env.PORT
 const app = express()
