@@ -2,8 +2,10 @@ import { Button } from "react-bootstrap"
 import Card from "react-bootstrap/Card"
 import ListGroup from "react-bootstrap/ListGroup"
 import { useSelector } from "react-redux"
+import { useMercadoPago } from "./Hook"
 
 function Cart() {
+  const mercadopago = useMercadoPago(import.meta.env.VITE_MERCADOPAGO_KEY)
   const products = useSelector((state) => state.cart)
 
   const total = products.reduce((sum, p) => sum + p.price, 0)
@@ -14,11 +16,16 @@ function Cart() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(products.map((p) => p._id)),
+      body: JSON.stringify({ products: products.map((p) => p._id) }),
     })
+    const data = await response.json()
 
-    const data = response.json()
-    alert("Orden creada!")
+    const checkout = mercadopago.checkout({
+      preference: {
+        id: data.preferenceId,
+      },
+    })
+    checkout.open()
   }
 
   return (
@@ -26,7 +33,7 @@ function Cart() {
       <Card.Header>Carro de Compras</Card.Header>
       <ListGroup variant="flush">
         {products.map((product) => (
-          <ListGroup.Item key={product.id} className="d-flex justify-content-between">
+          <ListGroup.Item key={product._id} className="d-flex justify-content-between">
             {product.name}
             <span>${product.price}</span>
           </ListGroup.Item>
