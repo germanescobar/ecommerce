@@ -20,4 +20,10 @@ app.use(express.json())
 
 app.use("/api", routes)
 
+// manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack)
+  res.status(500).json({ error: err.message })
+})
+
 app.listen(PORT, () => console.log(`Running on port ${PORT} ...`))
